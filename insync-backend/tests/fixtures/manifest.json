@@ -1,0 +1,331 @@
+{
+  "jds": {
+    "cdl_driver_columbus": {
+      "city": "Columbus, OH",
+      "path": "jds\\cdl_driver_columbus.txt",
+      "role": "CDL-A Driver"
+    },
+    "dock_worker_charlotte": {
+      "city": "Charlotte, NC",
+      "path": "jds\\dock_worker_charlotte.txt",
+      "role": "Dock Worker"
+    },
+    "forklift_atlanta": {
+      "city": "Atlanta, GA",
+      "path": "jds\\forklift_atlanta.txt",
+      "role": "Forklift Operator"
+    },
+    "picker_packer_phoenix": {
+      "city": "Phoenix, AZ",
+      "path": "jds\\picker_packer_phoenix.txt",
+      "role": "Picker/Packer"
+    },
+    "warehouse_dallas": {
+      "city": "Dallas, TX",
+      "path": "jds\\warehouse_dallas.txt",
+      "role": "Warehouse Associate"
+    }
+  },
+  "resumes": [
+    {
+      "intended_band": "strong",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Johnson",
+      "path": "resumes\\forklift_atlanta\\strong_00_michael_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "forklift_atlanta",
+      "name": "James Anderson",
+      "path": "resumes\\forklift_atlanta\\strong_01_james_anderson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Johnson",
+      "path": "resumes\\forklift_atlanta\\strong_02_michael_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Johnson",
+      "path": "resumes\\forklift_atlanta\\strong_03_michael_johnson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Johnson",
+      "path": "resumes\\forklift_atlanta\\moderate_04_michael_johnson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Thompson",
+      "path": "resumes\\forklift_atlanta\\moderate_05_michael_thompson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "forklift_atlanta",
+      "name": "Michael Johnson",
+      "path": "resumes\\forklift_atlanta\\moderate_06_michael_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "forklift_atlanta",
+      "name": "Jacob Thompson",
+      "path": "resumes\\forklift_atlanta\\weak_07_jacob_thompson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "forklift_atlanta",
+      "name": "Emily Johnson",
+      "path": "resumes\\forklift_atlanta\\weak_08_emily_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "forklift_atlanta",
+      "name": "Emily Carter",
+      "path": "resumes\\forklift_atlanta\\weak_09_emily_carter.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "warehouse_dallas",
+      "name": "James Carter",
+      "path": "resumes\\warehouse_dallas\\strong_00_james_carter.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "warehouse_dallas",
+      "name": "Sarah Johnson",
+      "path": "resumes\\warehouse_dallas\\strong_01_sarah_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "warehouse_dallas",
+      "name": "Emily Johnson",
+      "path": "resumes\\warehouse_dallas\\strong_02_emily_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "warehouse_dallas",
+      "name": "Emily Johnson",
+      "path": "resumes\\warehouse_dallas\\strong_03_emily_johnson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "warehouse_dallas",
+      "name": "Jessica Taylor",
+      "path": "resumes\\warehouse_dallas\\moderate_04_jessica_taylor.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "warehouse_dallas",
+      "name": "Michael Thompson",
+      "path": "resumes\\warehouse_dallas\\moderate_05_michael_thompson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "warehouse_dallas",
+      "name": "Michael Johnson",
+      "path": "resumes\\warehouse_dallas\\moderate_06_michael_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "warehouse_dallas",
+      "name": "Jessica Thompson",
+      "path": "resumes\\warehouse_dallas\\weak_07_jessica_thompson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "warehouse_dallas",
+      "name": "Jessica Taylor",
+      "path": "resumes\\warehouse_dallas\\weak_08_jessica_taylor.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "warehouse_dallas",
+      "name": "Emily Johnson",
+      "path": "resumes\\warehouse_dallas\\weak_09_emily_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Thompson",
+      "path": "resumes\\cdl_driver_columbus\\strong_00_michael_thompson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Thompson",
+      "path": "resumes\\cdl_driver_columbus\\strong_01_michael_thompson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Thompson",
+      "path": "resumes\\cdl_driver_columbus\\strong_02_michael_thompson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Thompson",
+      "path": "resumes\\cdl_driver_columbus\\strong_03_michael_thompson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Anderson",
+      "path": "resumes\\cdl_driver_columbus\\moderate_04_michael_anderson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Thompson",
+      "path": "resumes\\cdl_driver_columbus\\moderate_05_michael_thompson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Michael Johnson",
+      "path": "resumes\\cdl_driver_columbus\\moderate_06_michael_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Jordan Smith",
+      "path": "resumes\\cdl_driver_columbus\\weak_07_jordan_smith.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Emily Johnson",
+      "path": "resumes\\cdl_driver_columbus\\weak_08_emily_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "cdl_driver_columbus",
+      "name": "Emily Johnson",
+      "path": "resumes\\cdl_driver_columbus\\weak_09_emily_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Taylor",
+      "path": "resumes\\picker_packer_phoenix\\strong_00_jessica_taylor.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jordan Smith",
+      "path": "resumes\\picker_packer_phoenix\\strong_01_jordan_smith.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Harper",
+      "path": "resumes\\picker_packer_phoenix\\strong_02_jessica_harper.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Martinez",
+      "path": "resumes\\picker_packer_phoenix\\strong_03_jessica_martinez.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Monroe",
+      "path": "resumes\\picker_packer_phoenix\\moderate_04_jessica_monroe.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Turner",
+      "path": "resumes\\picker_packer_phoenix\\moderate_05_jessica_turner.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Taylor",
+      "path": "resumes\\picker_packer_phoenix\\moderate_06_jessica_taylor.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Jessica Taylor",
+      "path": "resumes\\picker_packer_phoenix\\weak_07_jessica_taylor.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Emily Johnson",
+      "path": "resumes\\picker_packer_phoenix\\weak_08_emily_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "picker_packer_phoenix",
+      "name": "Emily Johnson",
+      "path": "resumes\\picker_packer_phoenix\\weak_09_emily_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Michael Johnson",
+      "path": "resumes\\dock_worker_charlotte\\strong_00_michael_johnson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Michael Thompson",
+      "path": "resumes\\dock_worker_charlotte\\strong_01_michael_thompson.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "James Smith",
+      "path": "resumes\\dock_worker_charlotte\\strong_02_james_smith.txt"
+    },
+    {
+      "intended_band": "strong",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Michael Johnson",
+      "path": "resumes\\dock_worker_charlotte\\strong_03_michael_johnson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Michael Johnson",
+      "path": "resumes\\dock_worker_charlotte\\moderate_04_michael_johnson.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Samuel Rodriguez",
+      "path": "resumes\\dock_worker_charlotte\\moderate_05_samuel_rodriguez.txt"
+    },
+    {
+      "intended_band": "moderate",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Michael Johnson",
+      "path": "resumes\\dock_worker_charlotte\\moderate_06_michael_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Emily Johnson",
+      "path": "resumes\\dock_worker_charlotte\\weak_07_emily_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Emily Johnson",
+      "path": "resumes\\dock_worker_charlotte\\weak_08_emily_johnson.txt"
+    },
+    {
+      "intended_band": "weak",
+      "jd_slug": "dock_worker_charlotte",
+      "name": "Emily Johnson",
+      "path": "resumes\\dock_worker_charlotte\\weak_09_emily_johnson.txt"
+    }
+  ]
+}

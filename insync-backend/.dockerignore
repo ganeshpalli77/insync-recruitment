@@ -1,0 +1,35 @@
+# Keep the build context tight — anything not needed by the Dockerfile.
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Local secrets + state
+.env
+.env.local
+*.local
+
+# Tests, fixtures, scripts — none of these run inside the container
+tests/
+scripts/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docs (read on Railway dashboard, not needed in image)
+*.md
+docs/

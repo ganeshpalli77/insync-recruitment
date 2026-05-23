@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.env.local
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Quality-test scoring cache (per-corpus, machine-local)
+tests/fixtures/.scored_cache/
+dist/
+build/
+*.log
+.DS_Store

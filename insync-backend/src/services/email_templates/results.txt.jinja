@@ -1,0 +1,25 @@
+INSYNC · AI Resume Screener
+============================
+
+{{ job_summary.title }}
+{{ job_summary.location }}{% if job_summary.company %} · {{ job_summary.company }}{% endif %}
+{{ candidates|length }} candidate{{ "s" if candidates|length != 1 else "" }} scored
+{% for c in candidates %}
+
+----------------------------------------------------------
+{{ loop.index }}. {{ c.name }}  —  Score: {{ c.score }} ({{ c.score_band }})
+{{ c.one_line_summary }}
+
+STRENGTHS:
+{% for s in c.strengths %}  - {{ s }}
+{% endfor %}
+GAPS:
+{% for g in c.gaps %}  - {{ g }}
+{% endfor %}
+INTERVIEW QUESTIONS:
+{% for q in c.interview_questions %}  {{ loop.index }}. {{ q }}
+{% endfor %}{% endfor %}
+
+----------------------------------------------------------
+Sent by Insync AI Resume Screener · session {{ session_id[:8] }}{% if metadata %} · scored in {{ (metadata.processing_time_ms / 1000) | round(1) }}s{% endif %}
+{{ frontend_url }}

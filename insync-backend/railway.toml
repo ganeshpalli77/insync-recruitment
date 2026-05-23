@@ -1,0 +1,20 @@
+# Railway deployment config — https://docs.railway.app/reference/config-as-code
+# This file is read on every deploy. The Dockerfile in this directory is the
+# build source; Railway provides $PORT and (optionally) $REDIS_URL from a
+# linked Redis plugin.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+numReplicas = 1
+
+# Uvicorn worker count. Override per-service in the Railway dashboard if your
+# plan supports multiple cores; the Dockerfile CMD reads this env var.
+[deploy.envs]
+WEB_CONCURRENCY = "2"
