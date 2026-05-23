@@ -55,6 +55,22 @@ export type ScoreResponse = {
   candidates: CandidateScore[];
   metadata: ScoringMetadata;
   session_id: string;
+  // True when the prospect already submitted the email gate on a prior
+  // visit. False ⇒ frontend should show the gate before revealing results.
+  lead_registered: boolean;
+};
+
+export type LeadRegisterRequest = {
+  prospect_id: string;
+  name: string;
+  email: string;
+  company_name: string;
+  session_id: string;
+};
+
+export type LeadRegisterResponse = {
+  success: boolean;
+  total_resumes_scored: number;
 };
 
 export type ScoreProgressEvent = {

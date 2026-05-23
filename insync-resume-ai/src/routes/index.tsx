@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import ResumeScreener from "@/components/ResumeScreener";
+import { getOrCreateProspectId } from "@/lib/session";
 
 type IndexSearch = {
   p?: string; // prospect_id, used for Track B attribution
@@ -29,5 +31,12 @@ export const Route = createFileRoute("/")({
 
 function IndexComponent() {
   const { p } = Route.useSearch();
-  return <ResumeScreener prospectId={p ?? null} />;
+  // SSR renders with prospectId = URL value (or null). On hydration the
+  // useEffect resolves to a stable localStorage-backed id — that ensures
+  // returning visitors skip the email gate.
+  const [prospectId, setProspectId] = useState<string | null>(p ?? null);
+  useEffect(() => {
+    setProspectId(getOrCreateProspectId(p ?? null));
+  }, [p]);
+  return <ResumeScreener prospectId={prospectId} />;
 }

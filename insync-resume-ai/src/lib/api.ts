@@ -3,6 +3,7 @@
 import type {
   EmailCaptureResponse,
   JobSummary,
+  LeadRegisterResponse,
   LeadsRequestResponse,
   Metro,
   SampleDataResponse,
@@ -133,6 +134,32 @@ export async function requestLeads(input: LeadsRequestInput): Promise<LeadsReque
   });
   if (!r.ok) throw new Error(await readErr(r));
   return (await r.json()) as LeadsRequestResponse;
+}
+
+// ----- POST /api/lead/register --------------------------------------------
+
+export type LeadRegisterInput = {
+  prospectId: string;
+  name: string;
+  email: string;
+  companyName: string;
+  sessionId: string;
+};
+
+export async function registerLead(input: LeadRegisterInput): Promise<LeadRegisterResponse> {
+  const r = await fetch(url("/api/lead/register"), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      prospect_id: input.prospectId,
+      name: input.name,
+      email: input.email,
+      company_name: input.companyName,
+      session_id: input.sessionId,
+    }),
+  });
+  if (!r.ok) throw new Error(await readErr(r));
+  return (await r.json()) as LeadRegisterResponse;
 }
 
 // ----- helpers -------------------------------------------------------------

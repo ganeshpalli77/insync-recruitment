@@ -21,12 +21,13 @@ import {
   captureEmail,
   downloadCsv,
   fetchSampleData,
+  registerLead,
   requestLeads,
   scoreResumesStreaming,
 } from "@/lib/api";
 import type { CandidateScore, JobSummary, Metro, ScoreResponse } from "@/lib/api-types";
 
-type Stage = "input" | "loading" | "results";
+type Stage = "input" | "loading" | "email_gate" | "results";
 
 type UploadedFile = { file: File; name: string; size: number };
 
@@ -528,6 +529,118 @@ function LoadingBlock({ progress }: { progress: Progress }) {
   );
 }
 
+function EmailGateForm({
+  candidateCount,
+  sessionId,
+  prospectId,
+  onRegistered,
+}: {
+  candidateCount: number;
+  sessionId: string;
+  prospectId: string | null;
+  onRegistered: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  const canSubmit =
+    name.trim().length >= 2 && email.trim().length >= 5 && company.trim().length >= 2;
+
+  return (
+    <motion.div
+      key="gate"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="mx-auto mt-2 w-full max-w-md rounded-2xl border border-emerald/30 bg-surface/70 p-8 text-center shadow-[0_0_60px_-20px_var(--emerald)] backdrop-blur-sm"
+    >
+      <div className="mx-auto mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald/10 text-emerald">
+        <Check className="h-5 w-5" />
+      </div>
+      <h3 className="text-lg font-bold text-foreground">
+        {candidateCount} candidate{candidateCount === 1 ? "" : "s"} ranked.
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Tell us who you are to see the results. We won't email you unless you ask us to.
+      </p>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!canSubmit || status === "sending" || !prospectId) return;
+          setStatus("sending");
+          setError(null);
+          try {
+            await registerLead({
+              prospectId,
+              name: name.trim(),
+              email: email.trim(),
+              companyName: company.trim(),
+              sessionId,
+            });
+            onRegistered();
+          } catch (err) {
+            setStatus("error");
+            setError(err instanceof Error ? err.message : "Something went wrong");
+          }
+        }}
+        className="mt-5 space-y-2.5 text-left"
+      >
+        <input
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your full name"
+          disabled={status === "sending"}
+          className="w-full rounded-lg border border-hairline bg-background/60 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald/40 focus:outline-none focus:ring-2 focus:ring-emerald/20 disabled:opacity-60"
+        />
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Work email"
+          disabled={status === "sending"}
+          className="w-full rounded-lg border border-hairline bg-background/60 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald/40 focus:outline-none focus:ring-2 focus:ring-emerald/20 disabled:opacity-60"
+        />
+        <input
+          type="text"
+          required
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+          placeholder="Agency / company name"
+          disabled={status === "sending"}
+          className="w-full rounded-lg border border-hairline bg-background/60 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald/40 focus:outline-none focus:ring-2 focus:ring-emerald/20 disabled:opacity-60"
+        />
+        <button
+          type="submit"
+          disabled={!canSubmit || status === "sending"}
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            canSubmit && status !== "sending"
+              ? "bg-emerald text-primary-foreground hover:bg-mint"
+              : "cursor-not-allowed bg-surface text-muted-foreground"
+          }`}
+        >
+          {status === "sending" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              Show me the results <ArrowRight className="h-3.5 w-3.5" />
+            </>
+          )}
+        </button>
+        {error && <p className="pt-1 text-center text-[11px] text-danger">{error}</p>}
+        <p className="pt-1 text-center text-[10px] text-muted-foreground/80">
+          We only use this to contact you about Insync — never sold or shared.
+        </p>
+      </form>
+    </motion.div>
+  );
+}
+
 function EmailCaptureCard({
   response,
   sessionId,
@@ -851,16 +964,28 @@ export default function ResumeScreener({ prospectId }: { prospectId: string | nu
         },
       );
       setResponse(result);
-      setStage("results");
-      setTimeout(
-        () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-        200,
-      );
+      if (result.lead_registered) {
+        setStage("results");
+        setTimeout(
+          () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+          200,
+        );
+      } else {
+        setStage("email_gate");
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Scoring failed.";
       setScoreError(msg);
       setStage("input");
     }
+  };
+
+  const onLeadRegistered = () => {
+    setStage("results");
+    setTimeout(
+      () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      200,
+    );
   };
 
   const onLoadSample = async () => {
@@ -929,7 +1054,17 @@ export default function ResumeScreener({ prospectId }: { prospectId: string | nu
 
         <div className="mt-8 flex flex-col items-center">
           <AnimatePresence mode="wait">
-            {stage !== "loading" ? (
+            {stage === "loading" ? (
+              <LoadingBlock key="load" progress={progress} />
+            ) : stage === "email_gate" && response ? (
+              <EmailGateForm
+                key="gate"
+                candidateCount={response.candidates.length}
+                sessionId={sessionId}
+                prospectId={prospectId}
+                onRegistered={onLeadRegistered}
+              />
+            ) : (
               <motion.div
                 key="btn"
                 initial={{ opacity: 0 }}
@@ -964,8 +1099,6 @@ export default function ResumeScreener({ prospectId }: { prospectId: string | nu
                   </div>
                 )}
               </motion.div>
-            ) : (
-              <LoadingBlock key="load" progress={progress} />
             )}
           </AnimatePresence>
         </div>
