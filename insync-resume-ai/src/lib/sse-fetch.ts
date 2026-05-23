@@ -25,20 +25,33 @@ export async function* streamSSE(
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
 
+  // Find the next blank-line separator: prefer LF/LF, fall back to CRLF/CRLF.
+  // Some proxies (Cloudflare, NGINX) normalize line endings; the SSE spec
+  // permits either, so handle both.
+  const nextSeparator = (s: string): { idx: number; len: number } => {
+    const lf = s.indexOf("\n\n");
+    const crlf = s.indexOf("\r\n\r\n");
+    if (lf === -1 && crlf === -1) return { idx: -1, len: 0 };
+    if (lf === -1) return { idx: crlf, len: 4 };
+    if (crlf === -1) return { idx: lf, len: 2 };
+    return lf < crlf ? { idx: lf, len: 2 } : { idx: crlf, len: 4 };
+  };
+
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
-    // Split on blank lines — each chunk is one SSE event.
-    let separator = buffer.indexOf("\n\n");
-    while (separator !== -1) {
-      const rawEvent = buffer.slice(0, separator);
-      buffer = buffer.slice(separator + 2);
+    let sep = nextSeparator(buffer);
+    while (sep.idx !== -1) {
+      const rawEvent = buffer.slice(0, sep.idx);
+      buffer = buffer.slice(sep.idx + sep.len);
 
       let eventName = "message";
       const dataLines: string[] = [];
-      for (const line of rawEvent.split("\n")) {
+      // Split on either LF or CRLF — within an event, lines can be separated
+      // by either too.
+      for (const line of rawEvent.split(/\r?\n/)) {
         if (line.startsWith("event:")) {
           eventName = line.slice(6).trim();
         } else if (line.startsWith("data:")) {
@@ -49,7 +62,7 @@ export async function* streamSSE(
       if (dataLines.length > 0) {
         yield { event: eventName, data: dataLines.join("\n") };
       }
-      separator = buffer.indexOf("\n\n");
+      sep = nextSeparator(buffer);
     }
   }
 }

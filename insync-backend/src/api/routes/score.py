@@ -197,22 +197,53 @@ async def _stream_graph(
         }
         return
 
+    logger.info(
+        "graph_complete | session_id={} candidates={} failed={}",
+        session_id,
+        len(final_state.get("candidate_scores") or []) if final_state else 0,
+        len(final_state.get("failed_resumes") or []) if final_state else 0,
+    )
+
     if final_state is None or not final_state.get("metadata"):
+        logger.warning("scoring_no_final_state | session_id={}", session_id)
         yield {
             "event": "error",
             "data": json.dumps({"message": "Scoring produced no final state."}),
         }
         return
 
-    response = build_score_response(final_state)
-    await set_cached_score_response(cache_key, response.model_dump())
-    await record_cost_and_maybe_alert(response.metadata.total_cost_usd)
-    await _persist_after_scoring(
-        session_id=session_id,
-        prospect_id=prospect_id,
-        response=response,
-        ip=ip,
-        user_agent=user_agent,
+    try:
+        response = build_score_response(final_state)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("build_response_failed | session_id={}", session_id)
+        yield {
+            "event": "error",
+            "data": json.dumps({"message": f"Building response failed: {e!s}"[:300]}),
+        }
+        return
+
+    # Persist + cache + cost record — none of these should ever swallow the
+    # result event. Belt-and-suspenders try/except in case any wrapped repo
+    # function lets an exception escape.
+    try:
+        await set_cached_score_response(cache_key, response.model_dump())
+        await record_cost_and_maybe_alert(response.metadata.total_cost_usd)
+        await _persist_after_scoring(
+            session_id=session_id,
+            prospect_id=prospect_id,
+            response=response,
+            ip=ip,
+            user_agent=user_agent,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("post_score_side_effects_failed | session_id={}", session_id)
+        # Fall through — the user gets their result even if persistence broke.
+
+    logger.info(
+        "yielding_result_event | session_id={} candidate_count={} cost=${:.4f}",
+        session_id,
+        len(response.candidates),
+        response.metadata.total_cost_usd,
     )
     yield {"event": "result", "data": response.model_dump_json()}
 
