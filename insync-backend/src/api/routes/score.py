@@ -26,6 +26,7 @@ from src.db.repositories import prospects as prospects_repo
 from src.db.repositories import sessions as sessions_repo
 from src.schemas.score import ScoreResponse
 from src.services.crm_webhook import post_event as crm_post_event
+from src.services.slack import alert_scoring_completed
 from src.services.cache import (
     get_cached_score_response,
     hash_bytes,
@@ -239,6 +240,13 @@ async def _stream_graph(
         logger.exception("post_score_side_effects_failed | session_id={}", session_id)
         # Fall through — the user gets their result even if persistence broke.
 
+    # Resolve *after* persist so an already-registered prospect's flag is
+    # accurate even if the cache was written before this lookup.
+    try:
+        response.lead_registered = await _is_lead_registered(prospect_id)
+    except Exception:  # noqa: BLE001
+        logger.exception("lead_registered_lookup_failed | session_id={}", session_id)
+
     logger.info(
         "yielding_result_event | session_id={} candidate_count={} cost=${:.4f}",
         session_id,
@@ -267,6 +275,19 @@ from src.services.limiter import get_limiter as _get_limiter  # noqa: E402
 _limiter = _get_limiter()
 
 
+async def _is_lead_registered(prospect_id: str | None) -> bool:
+    """True if the prospect has already given us name+email+company.
+
+    Live-checks the prospects table on every call (cheap — one indexed
+    lookup) so stale cached responses don't make us re-prompt a user who
+    already submitted the gate.
+    """
+    if not prospect_id:
+        return False
+    row = await prospects_repo.get_by_id(prospect_id)
+    return bool(row and row.get("email"))
+
+
 async def _persist_after_scoring(
     *,
     session_id: str,
@@ -275,7 +296,12 @@ async def _persist_after_scoring(
     ip: str,
     user_agent: str | None,
 ) -> None:
-    """Fire-and-forget: write the session + candidates + Track B event + CRM."""
+    """Persist session + candidates + Track B event + CRM, and fire the
+    per-scoring Slack alert if the prospect is already a known lead.
+
+    For brand-new prospects (no email yet), Slack is deferred — it fires
+    once from /api/lead/register when the user submits the email gate.
+    """
     if prospect_id:
         await prospects_repo.ensure_exists(prospect_id, {"ip": ip})
     await sessions_repo.record_session(
@@ -301,6 +327,26 @@ async def _persist_after_scoring(
         await crm_post_event(
             prospect_id=prospect_id, event_type="tool_used", event_data=event_data
         )
+
+        # Slack-on-every-scoring, but only for already-registered leads.
+        # We re-fetch *after* increment_tool_use so total_resumes_scored
+        # reflects this run.
+        try:
+            row = await prospects_repo.get_by_id(prospect_id)
+            if row and row.get("email"):
+                await alert_scoring_completed(
+                    name=str(row.get("name") or "(unknown)"),
+                    company=str(row.get("company_name") or "(unknown)"),
+                    email=row.get("email"),
+                    prospect_id=prospect_id,
+                    this_run_count=len(response.candidates),
+                    total_count=int(row.get("total_resumes_scored") or 0),
+                    first_time=False,
+                )
+        except Exception:  # noqa: BLE001
+            logger.exception(
+                "slack_scoring_alert_failed | prospect_id={}", prospect_id
+            )
 
 
 @router.post("/score")
@@ -336,6 +382,9 @@ async def score_resumes(
         logger.info("score_cache_hit | session_id={}", session_id)
         cached["session_id"] = session_id  # echo client's session_id
         cached.setdefault("metadata", {})["cache_hit"] = True
+        # Re-resolve lead_registered live — the cached payload may have been
+        # written before the prospect registered.
+        cached["lead_registered"] = await _is_lead_registered(prospect_id)
         if stream:
             async def _cached_stream() -> AsyncIterator[dict[str, str]]:
                 yield {"event": "result", "data": json.dumps(cached)}
@@ -362,6 +411,8 @@ async def score_resumes(
             ip=ip,
             user_agent=user_agent,
         )
+        # Resolve *after* persist so increment_tool_use bumps land first.
+        response.lead_registered = await _is_lead_registered(prospect_id)
         return JSONResponse(content=response.model_dump())
 
     return EventSourceResponse(

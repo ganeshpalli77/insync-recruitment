@@ -9,7 +9,7 @@ from loguru import logger
 from slowapi.errors import RateLimitExceeded
 
 from src.api.middleware import install_middleware
-from src.api.routes import capture, health, sample, score, webhook
+from src.api.routes import capture, health, lead, sample, score, webhook
 from src.config import get_settings
 from src.services.limiter import get_limiter, rate_limit_exception_handler
 
@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(capture.router)
     app.include_router(sample.router)
     app.include_router(webhook.router)
+    app.include_router(lead.router)
     return app
 
 

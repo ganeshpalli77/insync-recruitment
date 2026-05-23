@@ -59,3 +59,28 @@ async def alert_hot_lead(
         ]
     )
     await post_message(f":fire: *Hot lead requested intros*\n{bullets}")
+
+
+async def alert_scoring_completed(
+    *,
+    name: str,
+    company: str,
+    email: str | None,
+    prospect_id: str | None,
+    this_run_count: int,
+    total_count: int,
+    first_time: bool,
+) -> None:
+    """Fired after every scoring run by a registered lead. Includes a
+    'NEW LEAD' tag on the first run after gate submission."""
+    header = ":sparkles: *NEW LEAD*" if first_time else ":green_circle: *Scoring run*"
+    bullets = "\n".join(
+        [
+            f"• *Who:* {name} @ {company}",
+            f"• *Email:* {email or '(unknown)'}",
+            f"• *This run:* {this_run_count} resume(s)",
+            f"• *Lifetime total:* {total_count}",
+            f"• *Prospect:* {prospect_id or '(none)'}",
+        ]
+    )
+    await post_message(f"{header}\n{bullets}")

@@ -70,3 +70,19 @@ class TrackBEvent(APIModel):
 class TrackBEventResponse(APIModel):
     success: bool
     event_id: str | None = None
+
+
+# Lead registration — frontend's email-gate submission ------------------------
+
+
+class LeadRegisterRequest(APIModel):
+    prospect_id: str = Field(min_length=1)
+    name: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    company_name: str = Field(min_length=2, max_length=200)
+    session_id: str = Field(min_length=1)
+
+
+class LeadRegisterResponse(APIModel):
+    success: bool
+    total_resumes_scored: int

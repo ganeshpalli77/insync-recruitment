@@ -67,3 +67,52 @@ async def upgrade_status(prospect_id: str, status: str) -> None:
         ).eq("prospect_id", prospect_id).execute()
     except Exception:  # noqa: BLE001
         return
+
+
+async def get_by_id(prospect_id: str) -> dict[str, Any] | None:
+    """Read the full prospect row by prospect_id. None if missing or DB off."""
+    if not prospect_id:
+        return None
+    client = get_client()
+    if client is None:
+        return None
+    try:
+        resp = (
+            client.table("prospects")
+            .select("*")
+            .eq("prospect_id", prospect_id)
+            .limit(1)
+            .execute()
+        )
+        if resp.data:
+            return resp.data[0]
+        return None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+async def update_lead_info(
+    *, prospect_id: str, name: str, email: str, company_name: str
+) -> dict[str, Any] | None:
+    """Set name+email+company on a prospect (upsert) + status='engaged'.
+
+    Returns the resulting row (with updated total_resumes_scored, etc.) so
+    the caller can feed the totals into a Slack alert without a second
+    round trip.
+    """
+    if not prospect_id:
+        return None
+    now = datetime.now(timezone.utc).isoformat()
+    await safe_table_upsert(
+        "prospects",
+        {
+            "prospect_id": prospect_id,
+            "name": name,
+            "email": email,
+            "company_name": company_name,
+            "status": "engaged",
+            "last_active_at": now,
+        },
+        on_conflict="prospect_id",
+    )
+    return await get_by_id(prospect_id)

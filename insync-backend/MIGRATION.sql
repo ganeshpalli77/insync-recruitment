@@ -8,6 +8,7 @@ create table if not exists prospects (
   id uuid primary key default gen_random_uuid(),
   prospect_id text unique not null,
   email text,
+  name text,
   company_name text,
   first_seen_at timestamptz not null default now(),
   last_active_at timestamptz,
@@ -16,6 +17,9 @@ create table if not exists prospects (
   status text not null default 'cold',
   metadata jsonb not null default '{}'::jsonb
 );
+
+-- Idempotent in case the table already existed pre-Phase-8.
+alter table prospects add column if not exists name text;
 
 create table if not exists scoring_sessions (
   id uuid primary key default gen_random_uuid(),

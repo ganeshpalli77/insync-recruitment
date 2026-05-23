@@ -46,6 +46,10 @@ class ScoreResponse(APIModel):
     candidates: list[CandidateScore]
     metadata: ScoringMetadata
     session_id: str
+    # True when the prospect already gave us name+email+company on a prior
+    # visit. The frontend uses this to skip the email gate on returning users.
+    # Defaults False so cached pre-Phase-8 responses fall through to the gate.
+    lead_registered: bool = False
 
 
 # SSE event payloads ---------------------------------------------------------
