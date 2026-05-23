@@ -273,7 +273,7 @@ async def _persist_after_scoring(
 
 
 @router.post("/score")
-@_limiter.limit("5/hour")
+@_limiter.limit("30/hour")
 async def score_resumes(
     request: Request,  # required by slowapi.limit
     job_description: Annotated[str, Form(min_length=_MIN_JD_CHARS, max_length=_MAX_JD_CHARS)],

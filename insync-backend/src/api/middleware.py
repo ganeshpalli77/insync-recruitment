@@ -27,6 +27,9 @@ def install_middleware(app: FastAPI) -> None:
     async def request_logger(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        # Lazy import so middleware loads without limiter as a hard dep at boot
+        from src.services.limiter import real_client_ip
+
         request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
         start = time.perf_counter()
         try:
@@ -47,7 +50,7 @@ def install_middleware(app: FastAPI) -> None:
             request.method,
             request.url.path,
             response.status_code,
-            request.client.host if request.client else "-",
+            real_client_ip(request),
             request_id,
             duration_ms,
         )
