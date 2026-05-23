@@ -8,6 +8,7 @@ plain Redis counters keyed by IP+date and global+date respectively.
 
 from __future__ import annotations
 
+import ipaddress
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, Request, status
@@ -21,11 +22,41 @@ from src.config import get_settings
 from src.services.cache import get_redis
 
 
-def _key_func(request: Request) -> str:
-    fwd = request.headers.get("x-forwarded-for")
-    if fwd:
-        return fwd.split(",")[0].strip()
+def _is_internal(ip: str) -> bool:
+    """RFC1918 private, RFC6598 carrier-grade NAT (100.64/10), or loopback."""
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return True
+    return (
+        addr.is_private
+        or addr.is_loopback
+        or addr.is_link_local
+        or addr in ipaddress.ip_network("100.64.0.0/10")  # CGNAT — Railway/Envoy proxies
+    )
+
+
+def real_client_ip(request: Request) -> str:
+    """Best-effort real client IP — skips internal proxy hops.
+
+    Order of preference:
+    1. `cf-connecting-ip` (set by Cloudflare's edge if the request transited it)
+    2. First non-internal IP in `x-forwarded-for` (skips Railway/Envoy proxy hops)
+    3. `request.client.host`
+    """
+    cf = request.headers.get("cf-connecting-ip")
+    if cf:
+        return cf.strip()
+    fwd = request.headers.get("x-forwarded-for", "")
+    for raw in fwd.split(","):
+        ip = raw.strip()
+        if ip and not _is_internal(ip):
+            return ip
     return get_remote_address(request)
+
+
+def _key_func(request: Request) -> str:
+    return real_client_ip(request)
 
 
 _limiter: Limiter | None = None

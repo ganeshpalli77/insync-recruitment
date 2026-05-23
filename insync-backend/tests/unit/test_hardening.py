@@ -87,3 +87,46 @@ def test_sample_data_rate_limit_enforced(client: TestClient) -> None:
 @pytest.mark.skip(reason="exercises the real Redis-backed limiter; needs docker compose up redis")
 def test_score_rate_limit_with_redis() -> None:
     """Placeholder for an integration test that asserts /api/score 6th call returns 429."""
+
+
+# ---- real-client-IP extraction -----------------------------------------
+
+
+def _make_request(headers: dict[str, str], remote: str = "1.2.3.4"):
+    from starlette.requests import Request
+
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "headers": [(k.lower().encode(), v.encode()) for k, v in headers.items()],
+        "client": (remote, 12345),
+        "path": "/",
+        "query_string": b"",
+        "scheme": "http",
+        "server": ("test", 80),
+    }
+    return Request(scope)
+
+
+def test_real_client_ip_prefers_cloudflare_header() -> None:
+    from src.services.limiter import real_client_ip
+
+    r = _make_request({"cf-connecting-ip": "8.8.8.8", "x-forwarded-for": "100.64.0.3"})
+    assert real_client_ip(r) == "8.8.8.8"
+
+
+def test_real_client_ip_skips_railway_cgnat_proxy() -> None:
+    from src.services.limiter import real_client_ip
+
+    # Realistic Railway scenario: user IP first, then a CGNAT hop, then the
+    # Envoy proxy hop. We must pick the user IP, not the CGNAT one.
+    r = _make_request({"x-forwarded-for": "100.64.0.3, 8.8.8.8, 10.0.0.5"})
+    assert real_client_ip(r) == "8.8.8.8"
+
+
+def test_real_client_ip_skips_only_internal_chain() -> None:
+    from src.services.limiter import real_client_ip
+
+    r = _make_request({"x-forwarded-for": "10.0.0.5, 100.64.0.3, 192.168.1.1"}, remote="9.9.9.9")
+    # No public IP in the chain — fall back to remote address.
+    assert real_client_ip(r) == "9.9.9.9"
