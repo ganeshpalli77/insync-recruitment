@@ -42,6 +42,15 @@ from src.services.sanitizer import clean_text
 router = APIRouter(prefix="/api", tags=["score"])
 
 _ACCEPTED_EXT = {".pdf", ".docx", ".txt"}
+
+# Headers that tell intermediary proxies (Cloudflare, NGINX) NOT to buffer
+# the SSE response. Without these, long LlamaParse pauses can trigger an
+# idle-connection kill before the result event ever leaves the origin.
+_SSE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, no-transform, must-revalidate",
+    "X-Accel-Buffering": "no",
+    "Connection": "keep-alive",
+}
 _MAX_FILES = 100
 _MAX_FILE_BYTES = 10 * 1024 * 1024
 _MAX_BATCH_BYTES = 100 * 1024 * 1024
@@ -300,7 +309,9 @@ async def score_resumes(
             async def _cached_stream() -> AsyncIterator[dict[str, str]]:
                 yield {"event": "result", "data": json.dumps(cached)}
 
-            return EventSourceResponse(_cached_stream())
+            return EventSourceResponse(
+                _cached_stream(), headers=_SSE_HEADERS, ping=5
+            )
         return JSONResponse(content=cached)
 
     if not stream:
@@ -331,5 +342,7 @@ async def score_resumes(
             prospect_id=prospect_id,
             ip=ip,
             user_agent=user_agent,
-        )
+        ),
+        headers=_SSE_HEADERS,
+        ping=5,  # keepalive every 5s — covers long LlamaParse pauses
     )
