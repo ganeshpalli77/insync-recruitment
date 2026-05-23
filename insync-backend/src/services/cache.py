@@ -49,12 +49,16 @@ def hash_jd(text: str) -> str:
 
 
 def hash_score_key(*, jd_text: str, file_hashes: list[str], model_parser: str, model_scorer: str) -> str:
+    # Late import keeps the cache module free of LangGraph/LLM deps.
+    from src.core.llm.prompts import PROMPT_VERSION
+
     payload = json.dumps(
         {
             "jd": _normalize_jd(jd_text),
             "files": sorted(file_hashes),
             "parser": model_parser,
             "scorer": model_scorer,
+            "prompt_version": PROMPT_VERSION,
         },
         sort_keys=True,
     )

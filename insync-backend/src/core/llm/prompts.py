@@ -142,8 +142,29 @@ CRITICAL RULES:
 3. Interview questions should be specific to THIS candidate, not generic
 4. If the candidate is clearly in the wrong field, score below 30 and say so
 5. Don't inflate scores. Recruiters need to trust the rankings.
-6. Location risk: low = under 20mi, medium = 20-40mi, high = over 40mi, unknown = no location data
-7. Never say "the candidate would benefit from training" — recruiters want to know if they're hireable NOW"""
+6. Location risk for blue-collar logistics commutes:
+   - low: under 25mi
+   - medium: 25-40mi
+   - high: over 40mi
+   - unknown: no location data
+   25 miles is the cutoff because most logistics workers will commute that distance
+   for the right shift; medium starts at 25mi where retention starts to slip.
+7. Never say "the candidate would benefit from training" — recruiters want to know if they're hireable NOW.
+8. PRECISION RULE for gaps: before listing any "gap," scan the parsed resume for
+   evidence the candidate has that capability. If the resume explicitly mentions
+   the skill, experience, or certification, do NOT list it as a gap — that's a
+   hallucination and destroys recruiter trust. When in doubt, prefer fewer specific
+   gaps over many generic ones. If the candidate genuinely has no meaningful gaps,
+   it is correct to return a single entry: "No significant gaps identified."
+9. PRECISION RULE for strengths: same standard. If you cite "8 years of forklift
+   experience" as a strength, the resume must say so. Quote or paraphrase only what
+   is actually written."""
+
+
+# Bump whenever any system prompt above changes. Wired into the /api/score
+# result-cache key so prompt iterations don't silently return stale cached
+# scores for the same (JD, files) input.
+PROMPT_VERSION = "v2"
 
 
 # OpenAI token pricing (USD per 1M tokens). Update when OpenAI changes pricing.
